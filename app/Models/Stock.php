@@ -2,42 +2,41 @@
 
 namespace App\Models;
 
-use Http;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use App\Clients\ClientException;
 use Illuminate\Database\Eloquent\Model;
+
 
 class Stock extends Model
 {
-//    use HasFactory;
 
     protected $table = 'stock';
 
     protected $casts = [
-        'in_stock'=>'boolean'
+        'in_stock' => 'boolean'
     ];
 
-    public function track()
+
+    /**
+     * @throws ClientException
+     */
+    public function track(): void
     {
 
-        // Hit an API endpoint for the associated retailer for this item
-        if ($this->retailer->name === 'Best Buy'){
-            $result = Http::get('http://foo.test')->json();
+        $status = $this->retailer->client()->checkAvailability($this);
 
-            $this->update([
-                'in_stock' => $result['available'],
-                'price' => $result['price'],
-            ]);
-        }
-
-        //Fetch the up-to-date details for the item
-        //And then refresh the current stock record
+        $this->update([
+            'in_stock' => $status->available,
+            'price' => $status->price,
+        ]);
 
 
     }
 
-    public function retailer(){
+    public function retailer()
+    {
         return $this->belongsTo(Retailer::class);
     }
+
 
 }
 

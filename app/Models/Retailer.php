@@ -2,12 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Facades\App\Clients\ClientFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Retailer extends Model
 {
-//    use HasFactory;
 
     public function addStock(Product $product, Stock $stock): void
     {
@@ -17,8 +17,14 @@ class Retailer extends Model
 
     }
 
-    public function stock(): \Illuminate\Database\Eloquent\Relations\HasMany
+    public function stock(): HasMany
     {
         return $this->hasMany(Stock::class);
     }
+
+    public function client()
+    {
+        return ClientFactory::make($this);
+    }
+
 }
